@@ -106,6 +106,29 @@ st.markdown("""
             0 0 120px 20px rgba(249, 115, 22, 0.07);
     }
 
+    .prism-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 58px;
+        box-sizing: border-box;
+        text-align: center;
+        font-size: 12px;
+        color: #484f58;
+        padding: 10px 0 12px;
+        background: #0e1117;
+        border-top: 1px solid #1f1f1f;
+        z-index: 999;
+    }
+    .prism-footer a {
+        color: #484f58;
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+    .prism-footer a:hover { color: #f97316; }
+    .main .block-container { padding-bottom: 70px !important; }
+
     [data-testid="stHorizontalBlock"] {
         align-items: flex-start;
     }
@@ -278,3 +301,13 @@ with right:
             """,
             unsafe_allow_html=True,
         )
+
+# ── Footer ────────────────────────────────────────────────────────────────────
+st.markdown(
+    '<div class="prism-footer">'
+    '© 2026 Prism by <a href="https://github.com/hnprivv">Huzaifa Najam</a>.<br>'
+    'Only your dataset schema and question are sent to Google Gemini. '
+    'Your data is never uploaded or stored.'
+    '</div>',
+    unsafe_allow_html=True,
+)

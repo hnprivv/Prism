@@ -87,6 +87,25 @@ st.markdown("""
         padding-right: 0.5rem;
     }
 
+    .prism-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(249, 115, 22, 0.2);
+        border-top-color: #f97316;
+        border-radius: 50%;
+        animation: prism-spin 0.8s linear infinite;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+    @keyframes prism-spin { to { transform: rotate(360deg); } }
+
+    [data-testid="stPlotlyChart"] {
+        border-radius: 12px;
+        box-shadow:
+            0 0 60px 8px rgba(239, 68, 68, 0.12),
+            0 0 120px 20px rgba(249, 115, 22, 0.07);
+    }
+
     [data-testid="stHorizontalBlock"] {
         align-items: flex-start;
     }
@@ -124,6 +143,11 @@ with left:
 
     df = None
     if uploaded:
+        if st.session_state.get("prism_file") != uploaded.name:
+            st.session_state.pop("prism_output", None)
+            st.session_state.pop("prism_question", None)
+            st.session_state.pop("prism_insight", None)
+            st.session_state["prism_file"] = uploaded.name
         try:
             if uploaded.name.endswith(".csv"):
                 df = pd.read_csv(uploaded)
@@ -156,17 +180,22 @@ with left:
     if df is None:
         st.caption("Upload a file to get started.")
 
+    status_slot = st.empty()
+
 # ── Analysis ──────────────────────────────────────────────────────────────────
 with right:
     st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
-    if analyse_btn and df is not None and question.strip():
-        with st.spinner("Thinking..."):
-            try:
-                output = analyse(df, question)
-            except Exception as e:
-                st.error(f"Analysis failed: {e}")
-                st.stop()
+    def _show_status(msg):
+        status_slot.markdown(f"""
+        <div style="display:flex;align-items:center;gap:0.75rem;
+                    background:#161010;border:1px solid #f97316;border-radius:10px;
+                    padding:0.75rem 1.25rem;margin-top:0.5rem;">
+            <div class="prism-spinner"></div>
+            <span style="color:#9ca3af;font-size:0.92rem;font-weight:500;">{msg}</span>
+        </div>
+        """, unsafe_allow_html=True)
 
+    def _render_results(output, question, insight):
         result = output.get("result")
         fig = output.get("fig")
 
@@ -184,9 +213,6 @@ with right:
                 margin=dict(t=40, b=40, l=60, r=30),
             )
             st.plotly_chart(fig, use_container_width=True)
-
-            with st.spinner("Interpreting result..."):
-                insight = interpret(df, question, output)
             if insight:
                 st.markdown(
                     f'<div class="insight-box">💡 {insight}</div>',
@@ -197,9 +223,6 @@ with right:
                 st.dataframe(result, use_container_width=True)
             else:
                 st.metric(label=question, value=str(result))
-
-            with st.spinner("Interpreting result..."):
-                insight = interpret(df, question, output)
             if insight:
                 st.markdown(
                     f'<div class="insight-box">💡 {insight}</div>',
@@ -217,7 +240,33 @@ with right:
         with st.expander("Generated Code", expanded=False):
             st.code(output.get("code", ""), language="python")
 
-    elif not analyse_btn:
+    if analyse_btn and df is not None and question.strip():
+        _show_status("Analysing your question…")
+        try:
+            output = analyse(df, question)
+        except Exception as e:
+            status_slot.empty()
+            st.error(f"Analysis failed: {e}")
+            st.stop()
+
+        _show_status("Interpreting result…")
+        insight = interpret(df, question, output)
+        status_slot.empty()
+
+        st.session_state["prism_output"] = output
+        st.session_state["prism_question"] = question
+        st.session_state["prism_insight"] = insight
+
+        _render_results(output, question, insight)
+
+    elif st.session_state.get("prism_output") is not None:
+        _render_results(
+            st.session_state["prism_output"],
+            st.session_state["prism_question"],
+            st.session_state["prism_insight"],
+        )
+
+    else:
         st.markdown(
             """
             <div class="result-panel" style="display:flex; align-items:center; justify-content:center;">

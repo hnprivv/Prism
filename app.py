@@ -257,7 +257,7 @@ with right:
         sample = output.get("sample")
         if sample is not None and isinstance(sample, pd.DataFrame) and not sample.empty:
             with st.expander("Tabular Sample", expanded=False):
-                st.caption("These are the rows behind the answer. Check that the filter/grouping looks correct.")
+                st.caption("These are some of the rows behind the answer. Check that the filter/grouping looks correct.")
                 st.dataframe(sample, use_container_width=True)
 
         with st.expander("Generated Code", expanded=False):

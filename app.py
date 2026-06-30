@@ -15,7 +15,7 @@ st.markdown("""
     .hero-title {
         font-size: 3rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
+        background: linear-gradient(135deg, #ef4444, #f97316);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -28,7 +28,7 @@ st.markdown("""
     }
     .insight-box {
         background: linear-gradient(135deg, #1a1a2e, #0f1729);
-        border-left: 3px solid #60a5fa;
+        border-left: 3px solid #f97316;
         border-radius: 0 10px 10px 0;
         padding: 1rem 1.25rem;
         color: #e2e8f0;
@@ -48,7 +48,7 @@ st.markdown("""
     }
     .stButton > button,
     .stFormSubmitButton > button {
-        background: linear-gradient(135deg, #7c3aed, #2563eb);
+        background: linear-gradient(135deg, #ef4444, #f97316);
         color: white;
         border: none;
         border-radius: 8px;
@@ -115,7 +115,7 @@ with left:
     st.markdown('<div class="hero-title">Prism</div>', unsafe_allow_html=True)
     st.markdown('<div class="hero-sub">Upload a spreadsheet. Ask a question. Get an answer.</div>', unsafe_allow_html=True)
 
-    st.markdown("#### Upload your data")
+    st.markdown("#### Upload File")
     uploaded = st.file_uploader(
         "CSV or Excel file",
         type=["csv", "xlsx", "xls"],
@@ -134,14 +134,15 @@ with left:
             st.error(f"Could not read file: {e}")
 
     if df is not None:
-        if st.button("View schema", use_container_width=False):
+        if st.button("View Schema", use_container_width=False):
             show_schema(df)
 
-    st.markdown("#### Ask a question")
+    st.markdown('<div style="height:1rem;"></div>', unsafe_allow_html=True)
+    st.markdown("#### Input Question")
     with st.form("question_form"):
         question = st.text_area(
             "Question",
-            placeholder="e.g. Which city had the highest total sales?",
+            placeholder="e.g. What would the pie chart of sales by category look like?",
             height=110,
             label_visibility="collapsed",
             disabled=df is None,
@@ -209,18 +210,21 @@ with right:
 
         sample = output.get("sample")
         if sample is not None and isinstance(sample, pd.DataFrame) and not sample.empty:
-            with st.expander("Data sample — verify the logic", expanded=False):
+            with st.expander("Tabular Sample", expanded=False):
                 st.caption("These are the rows behind the answer. Check that the filter/grouping looks correct.")
                 st.dataframe(sample, use_container_width=True)
 
-        with st.expander("Generated code", expanded=False):
+        with st.expander("Generated Code", expanded=False):
             st.code(output.get("code", ""), language="python")
 
     elif not analyse_btn:
         st.markdown(
             """
             <div class="result-panel" style="display:flex; align-items:center; justify-content:center;">
-                <span style="color:#4b5563; font-size:0.95rem;">Your chart or table will appear here.</span>
+                <span style="color:#4b5563; font-size:0.95rem;">Chart will appear here.</span>
+            </div>
+            <div class="result-panel" style="display:flex; align-items:center; justify-content:center; margin-top:1rem; min-height:300px;">
+                <span style="color:#4b5563; font-size:0.95rem;">Table, interpretation and generated code will appear here.</span>
             </div>
             """,
             unsafe_allow_html=True,

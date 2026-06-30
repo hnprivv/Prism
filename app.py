@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from analyst import analyse, interpret
 
-st.set_page_config(page_title="Prism", page_icon="🔬", layout="wide")
+st.set_page_config(page_title="Prism", page_icon="icon.png", layout="wide")
 
 st.markdown("""
 <style>

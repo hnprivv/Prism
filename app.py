@@ -71,17 +71,22 @@ st.markdown("""
         border-radius: 10px;
         padding: 0.5rem;
     }
+    .result-panel {
+        border: 1.5px dashed #3d3d5c;
+        border-radius: 10px;
+        padding: 1.25rem;
+        min-height: 320px;
+    }
 </style>
 """, unsafe_allow_html=True)
-
-# ── Header ──────────────────────────────────────────────────────────────────
-st.markdown('<div class="hero-title">Prism</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-sub">Upload a spreadsheet. Ask a question. Get an answer.</div>', unsafe_allow_html=True)
 
 # ── Layout ───────────────────────────────────────────────────────────────────
 left, right = st.columns([1, 2], gap="large")
 
 with left:
+    st.markdown('<div class="hero-title">Prism</div>', unsafe_allow_html=True)
+    st.markdown('<div class="hero-sub">Upload a spreadsheet. Ask a question. Get an answer.</div>', unsafe_allow_html=True)
+
     st.markdown("#### Upload your data")
     uploaded = st.file_uploader(
         "CSV or Excel file",
@@ -126,6 +131,7 @@ with left:
 
 # ── Analysis ──────────────────────────────────────────────────────────────────
 with right:
+    st.markdown('<div style="height:23px;"></div>', unsafe_allow_html=True)
     if analyse_btn and df is not None and question.strip():
         with st.spinner("Thinking..."):
             try:
@@ -148,6 +154,7 @@ with right:
                 paper_bgcolor="#0f0f0f",
                 plot_bgcolor="#1a1a1a",
                 font_color="#e2e8f0",
+                margin=dict(t=40, b=40, l=60, r=30),
             )
             st.plotly_chart(fig, use_container_width=True)
 
@@ -174,14 +181,20 @@ with right:
         else:
             st.warning("The model returned no output. Try rephrasing your question.")
 
+        sample = output.get("sample")
+        if sample is not None and isinstance(sample, pd.DataFrame) and not sample.empty:
+            with st.expander("Data sample — verify the logic", expanded=False):
+                st.caption("These are the rows behind the answer. Check that the filter/grouping looks correct.")
+                st.dataframe(sample, use_container_width=True)
+
         with st.expander("Generated code", expanded=False):
             st.code(output.get("code", ""), language="python")
 
     elif not analyse_btn:
         st.markdown(
             """
-            <div style='color:#4b5563; font-size:0.95rem; padding-top:4rem; text-align:center;'>
-                Your chart or table will appear here.
+            <div class="result-panel" style="display:flex; align-items:center; justify-content:center;">
+                <span style="color:#4b5563; font-size:0.95rem;">Your chart or table will appear here.</span>
             </div>
             """,
             unsafe_allow_html=True,

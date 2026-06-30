@@ -26,15 +26,6 @@ st.markdown("""
         font-size: 1.05rem;
         margin-bottom: 2rem;
     }
-    .schema-box {
-        background: #1a1a2e;
-        border: 1px solid #2d2d44;
-        border-radius: 10px;
-        padding: 1rem 1.25rem;
-        font-size: 0.82rem;
-        color: #a78bfa;
-        font-family: monospace;
-    }
     .insight-box {
         background: linear-gradient(135deg, #1a1a2e, #0f1729);
         border-left: 3px solid #60a5fa;
@@ -77,8 +68,27 @@ st.markdown("""
         padding: 1.25rem;
         min-height: 320px;
     }
+
+    [data-testid="stHorizontalBlock"] {
+        align-items: flex-start;
+    }
+    [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child {
+        position: sticky;
+        top: 4.5rem;
+    }
+    @media (max-width: 768px) {
+        [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child {
+            position: static;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
+
+@st.dialog("Dataset schema")
+def show_schema(df):
+    for col in df.columns:
+        st.markdown(f"`{col}` — *{df[col].dtype}*")
+
 
 # ── Layout ───────────────────────────────────────────────────────────────────
 left, right = st.columns([1, 2], gap="large")
@@ -106,14 +116,8 @@ with left:
             st.error(f"Could not read file: {e}")
 
     if df is not None:
-        with st.expander("Dataset schema", expanded=False):
-            schema_lines = []
-            for col in df.columns:
-                schema_lines.append(f"{col}  ({df[col].dtype})")
-            st.markdown(
-                '<div class="schema-box">' + "<br>".join(schema_lines) + "</div>",
-                unsafe_allow_html=True,
-            )
+        if st.button("View schema", use_container_width=False):
+            show_schema(df)
 
     st.markdown("#### Ask a question")
     question = st.text_area(
@@ -131,7 +135,7 @@ with left:
 
 # ── Analysis ──────────────────────────────────────────────────────────────────
 with right:
-    st.markdown('<div style="height:23px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
     if analyse_btn and df is not None and question.strip():
         with st.spinner("Thinking..."):
             try:

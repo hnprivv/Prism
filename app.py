@@ -35,6 +35,7 @@ st.markdown("""
         font-size: 0.95rem;
         line-height: 1.6;
         margin-top: 1.25rem;
+        margin-bottom: 1.25rem;
     }
     .cannot-box {
         background: #1f1114;
@@ -45,7 +46,8 @@ st.markdown("""
         font-size: 0.95rem;
         margin-top: 1rem;
     }
-    .stButton > button {
+    .stButton > button,
+    .stFormSubmitButton > button {
         background: linear-gradient(135deg, #7c3aed, #2563eb);
         color: white;
         border: none;
@@ -55,7 +57,13 @@ st.markdown("""
         font-size: 0.95rem;
         transition: opacity 0.2s;
     }
-    .stButton > button:hover { opacity: 0.85; }
+    .stButton > button:hover,
+    .stFormSubmitButton > button:hover { opacity: 0.85; }
+
+    [data-testid="stForm"] {
+        border: none;
+        padding: 0;
+    }
 
     [data-testid="stFileUploader"] {
         border: 1.5px dashed #3d3d5c;
@@ -67,6 +75,16 @@ st.markdown("""
         border-radius: 10px;
         padding: 1.25rem;
         min-height: 320px;
+    }
+
+    /* Dialog: header stays put, only content scrolls */
+    [data-testid="stDialog"] {
+        overflow: hidden !important;
+    }
+    [data-testid="stDialog"] > div > div > div:nth-child(2) {
+        overflow-y: auto;
+        max-height: 75vh;
+        padding-right: 0.5rem;
     }
 
     [data-testid="stHorizontalBlock"] {
@@ -120,15 +138,19 @@ with left:
             show_schema(df)
 
     st.markdown("#### Ask a question")
-    question = st.text_area(
-        "Question",
-        placeholder="e.g. Which city had the highest total sales?",
-        height=110,
-        label_visibility="collapsed",
-        disabled=df is None,
-    )
-
-    analyse_btn = st.button("Analyse", disabled=(df is None or not question.strip()))
+    with st.form("question_form"):
+        question = st.text_area(
+            "Question",
+            placeholder="e.g. Which city had the highest total sales?",
+            height=110,
+            label_visibility="collapsed",
+            disabled=df is None,
+        )
+        analyse_btn = st.form_submit_button(
+            "Analyse",
+            disabled=df is None,
+            use_container_width=False,
+        )
 
     if df is None:
         st.caption("Upload a file to get started.")

@@ -81,8 +81,15 @@ def analyse(df: pd.DataFrame, question: str) -> dict:
 
 
 def interpret(df: pd.DataFrame, question: str, output: dict) -> str:
+    sample = output.get("sample")
+    sample_text = (
+        f"\nUnderlying data used to produce this result:\n{sample.to_string(index=False)}"
+        if sample is not None and isinstance(sample, pd.DataFrame) and not sample.empty
+        else ""
+    )
+
     if output.get("fig"):
-        result_description = "A chart was produced."
+        result_description = f"A chart was produced.{sample_text}"
     elif output.get("result") is not None:
         val = output["result"]
         if isinstance(val, pd.DataFrame):

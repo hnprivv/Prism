@@ -102,7 +102,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-@st.dialog("Dataset schema")
+@st.dialog("Dataset Schema")
 def show_schema(df):
     for col in df.columns:
         st.markdown(f"`{col}` — *{df[col].dtype}*")

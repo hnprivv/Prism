@@ -263,6 +263,15 @@ with right:
         with st.expander("Generated Code", expanded=False):
             st.code(output.get("code", ""), language="python")
 
+        metrics = output.get("metrics")
+        if metrics:
+            retry_label = " · retried once" if metrics["retried"] else ""
+            st.caption(
+                f"Code generated in {metrics['codegen_s']}s · "
+                f"executed in {metrics['exec_s']}s · "
+                f"total {metrics['total_s']}s{retry_label}"
+            )
+
     if analyse_btn and df is not None and question.strip():
         _show_status("Analysing your question…")
         try:

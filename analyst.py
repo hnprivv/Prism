@@ -1,4 +1,5 @@
 import re
+import time
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -68,15 +69,28 @@ def run_code(code: str, df: pd.DataFrame) -> dict:
 
 def analyse(df: pd.DataFrame, question: str) -> dict:
     schema = extract_schema(df)
+
+    t0 = time.perf_counter()
     code = generate_code(schema, question)
+    t_codegen = time.perf_counter() - t0
+
+    retried = False
+    t1 = time.perf_counter()
     try:
         output = run_code(code, df)
     except Exception as e:
-        # one retry with the error fed back
+        retried = True
         code = generate_code(schema, question, error=str(e))
         output = run_code(code, df)
+    t_exec = time.perf_counter() - t1
 
     output["code"] = code
+    output["metrics"] = {
+        "codegen_s": round(t_codegen, 2),
+        "exec_s": round(t_exec, 3),
+        "total_s": round(t_codegen + t_exec, 2),
+        "retried": retried,
+    }
     return output
 
 
